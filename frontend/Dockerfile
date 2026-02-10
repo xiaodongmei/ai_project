@@ -7,8 +7,8 @@ WORKDIR /app
 # 复制 package.json 和 package-lock.json
 COPY package*.json ./
 
-# 安装依赖
-RUN npm ci
+# 安装依赖（使用淘宝镜像源）
+RUN npm ci --registry=https://registry.npmmirror.com
 
 # 复制源代码
 COPY . .

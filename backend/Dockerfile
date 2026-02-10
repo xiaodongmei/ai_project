@@ -20,9 +20,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # 创建非 root 用户
 RUN useradd -m -u 1000 appuser
 
-# 复制 requirements.txt 并安装 Python 依赖
+# 复制 requirements.txt 并安装 Python 依赖（使用清华镜像源）
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple --trusted-host pypi.tuna.tsinghua.edu.cn -r requirements.txt
 
 # 复制应用代码
 COPY app ./app
