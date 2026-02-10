@@ -52,9 +52,14 @@ async def get_db() -> AsyncSession:
 
 
 async def init_db():
-    """初始化数据库 - 自动创建所有表"""
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+    """初始化数据库 - 自动创建所有表（多worker安全）"""
+    try:
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+    except Exception as e:
+        # 多worker启动时可能出现竞争条件，忽略重复创建错误
+        import logging
+        logging.getLogger(__name__).warning(f"init_db warning (safe to ignore if tables exist): {e}")
 
 
 async def close_db():
