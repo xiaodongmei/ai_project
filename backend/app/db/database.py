@@ -1,21 +1,39 @@
 """数据库配置和会话管理"""
+import os
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
 
 from app.core.config import settings
+from app.db.base import Base
+# 导入所有模型，确保它们注册到 Base.metadata
+import app.models  # noqa: F401
 
 
-# 创建异步引擎（使用 SQLite 用于演示）
-# 在生产环境中应该使用 postgresql+asyncpg:// 而不是 postgresql://
-DATABASE_URL = "sqlite+aiosqlite:///:memory:"  # 内存数据库用于演示
+# 判断数据库 URL 类型
+_raw_url = os.environ.get("DATABASE_URL", settings.DATABASE_URL)
 
-engine = create_async_engine(
-    DATABASE_URL,
-    echo=settings.SQLALCHEMY_ECHO,
-    future=True,
-    connect_args={"check_same_thread": False},
-)
+if _raw_url.startswith("postgresql://"):
+    # Docker/生产环境：使用 PostgreSQL (asyncpg)
+    DATABASE_URL = _raw_url.replace("postgresql://", "postgresql+asyncpg://", 1)
+    engine = create_async_engine(
+        DATABASE_URL,
+        echo=settings.SQLALCHEMY_ECHO,
+        future=True,
+        pool_size=5,
+        max_overflow=10,
+    )
+else:
+    # 本地开发/回退：使用 SQLite 文件持久化
+    db_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "data", "wellness.db")
+    os.makedirs(os.path.dirname(db_path), exist_ok=True)
+    DATABASE_URL = f"sqlite+aiosqlite:///{db_path}"
+    engine = create_async_engine(
+        DATABASE_URL,
+        echo=settings.SQLALCHEMY_ECHO,
+        future=True,
+        connect_args={"check_same_thread": False},
+    )
 
 # 创建异步会话工厂
 async_session = sessionmaker(
@@ -34,11 +52,9 @@ async def get_db() -> AsyncSession:
 
 
 async def init_db():
-    """初始化数据库"""
+    """初始化数据库 - 自动创建所有表"""
     async with engine.begin() as conn:
-        # 这里会在后续创建模型后调用
-        # await conn.run_sync(Base.metadata.create_all)
-        pass
+        await conn.run_sync(Base.metadata.create_all)
 
 
 async def close_db():

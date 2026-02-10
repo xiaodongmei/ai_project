@@ -1,6 +1,6 @@
 # 养生店管理系统 - 前端 Dockerfile
 # 构建阶段
-FROM node:20-alpine as builder
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
@@ -13,6 +13,9 @@ RUN npm ci
 # 复制源代码
 COPY . .
 
+# 构建时使用相对路径，让 nginx 反向代理处理 API 请求
+ENV VITE_API_BASE_URL=/api/v1
+
 # 构建应用
 RUN npm run build
 
@@ -24,18 +27,6 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # 从构建阶段复制构建结果
 COPY --from=builder /app/dist /usr/share/nginx/html
-
-# 创建非 root 用户
-RUN addgroup -g 1000 appuser && \
-    adduser -D -u 1000 -G appuser appuser && \
-    chown -R appuser:appuser /usr/share/nginx/html
-
-# 设置权限
-RUN touch /var/run/nginx.pid && \
-    chown -R appuser:appuser /var/run/nginx.pid
-
-# 切换用户
-USER appuser
 
 # 暴露端口
 EXPOSE 80
