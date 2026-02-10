@@ -1,0 +1,123 @@
+<view class="container">
+  <view wx:if="{{!user}}" class="not-logged-in">
+    <view class="empty-icon">👤</view>
+    <view class="empty-text">未登录</view>
+    <button class="btn btn-primary" open-type="navigate" href="/pages/login/index">
+      去登录
+    </button>
+  </view>
+
+  <view wx:if="{{user}}" class="profile-content">
+    <!-- 用户信息卡片 -->
+    <view class="user-card">
+      <view class="user-avatar">
+        {{user.name.substring(0, 1).toUpperCase()}}
+      </view>
+      <view class="user-info">
+        <view class="user-name">{{user.name || '用户名'}}</view>
+        <view class="user-email">{{user.email}}</view>
+      </view>
+    </view>
+
+    <!-- 数据统计 -->
+    <view class="statistics">
+      <view class="stat-item">
+        <view class="stat-value">{{statistics.totalOrders}}</view>
+        <view class="stat-label">总订单</view>
+      </view>
+      <view class="stat-item">
+        <view class="stat-value">{{statistics.pendingOrders}}</view>
+        <view class="stat-label">待支付</view>
+      </view>
+      <view class="stat-item">
+        <view class="stat-value">{{statistics.completedOrders}}</view>
+        <view class="stat-label">已完成</view>
+      </view>
+      <view class="stat-item">
+        <view class="stat-value">¥{{statistics.totalSpent}}</view>
+        <view class="stat-label">总消费</view>
+      </view>
+    </view>
+
+    <!-- 收货地址 -->
+    <view class="section">
+      <view class="section-header">
+        <text class="section-title">收货地址</text>
+        <text class="edit-btn" bindtap="editAddress" wx:if="{{!editingAddress}}">编辑</text>
+      </view>
+
+      <!-- 查看模式 -->
+      <view wx:if="{{!editingAddress}}" class="address-display">
+        <view wx:if="{{address}}" class="address-content">
+          <view class="address-text">{{address}}</view>
+          <view class="phone-text" wx:if="{{phone}}">{{phone}}</view>
+        </view>
+        <view wx:if="{{!address}}" class="empty-address">
+          暂未设置收货地址，点击编辑添加
+        </view>
+      </view>
+
+      <!-- 编辑模式 -->
+      <view wx:if="{{editingAddress}}" class="address-edit">
+        <view class="form-group">
+          <label>收货地址</label>
+          <textarea
+            class="form-input"
+            placeholder="请输入收货地址"
+            value="{{address}}"
+            bindinput="onAddressChange"
+            maxlength="200"
+          ></textarea>
+          <view class="char-count">{{address.length}}/200</view>
+        </view>
+
+        <view class="form-group">
+          <label>联系电话</label>
+          <input
+            class="form-input"
+            type="tel"
+            placeholder="请输入联系电话"
+            value="{{phone}}"
+            bindinput="onPhoneChange"
+          />
+        </view>
+
+        <view class="button-group">
+          <button class="btn btn-secondary" bindtap="cancelEdit">取消</button>
+          <button class="btn btn-primary" bindtap="saveAddress">保存</button>
+        </view>
+      </view>
+    </view>
+
+    <!-- 我的订单 -->
+    <view class="section">
+      <view class="section-title">我的订单</view>
+      <view class="menu-item" bindtap="goToOrders">
+        <text class="menu-text">查看所有订单</text>
+        <text class="menu-arrow">›</text>
+      </view>
+    </view>
+
+    <!-- 更多功能 -->
+    <view class="section">
+      <view class="section-title">更多</view>
+      <view class="menu-item" bindtap="goToFavorites">
+        <text class="menu-text">❤️ 我的收藏</text>
+        <text class="menu-arrow">›</text>
+      </view>
+      <view class="menu-item" bindtap="goToHelp">
+        <text class="menu-text">❓ 帮助中心</text>
+        <text class="menu-arrow">›</text>
+      </view>
+      <view class="menu-item" bindtap="goToAbout">
+        <text class="menu-text">ℹ️ 关于我们</text>
+        <text class="menu-arrow">›</text>
+      </view>
+    </view>
+
+    <!-- 登出按钮 -->
+    <view class="logout-section">
+      <button class="btn btn-logout" bindtap="logout">登出</button>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,85 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*.swn
+*.sublime-project
+*.sublime-workspace
+.DS_Store
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.egg-info
+.Python
+venv/
+env/
+ENV/
+.venv
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+htmlcov/
+
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+dist/
+.npm
+.eslintcache
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs/
+*.log
+lerna-debug.log
+
+# OS
+Thumbs.db
+desktop.ini
+
+# Docker
+docker-compose.override.yml
+Dockerfile.dev
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Redis
+dump.rdb
+
+# Documentation
+docs/_build/
+
+# Test coverage
+coverage/
+htmlcov/
+
+# Misc
+.editorconfig
+.prettierignore
+.prettierrc
+.eslintignore
+.stylelintignore

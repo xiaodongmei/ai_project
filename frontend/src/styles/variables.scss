@@ -1,0 +1,185 @@
+/**
+ * CSS 变量定义 - 设计系统基础
+ */
+
+// ========== 颜色系统 ==========
+// 主色系
+$primary-color: #409EFF;       // 主色 (蓝色)
+$primary-dark: #3875D1;        // 深主色
+$primary-light: #79BBFF;       // 浅主色
+
+// 辅助色系
+$success-color: #67C26A;       // 成功 (绿色)
+$success-dark: #52A852;
+$success-light: #85CE61;
+
+$warning-color: #E6A23C;       // 警告 (黄色)
+$warning-dark: #B88230;
+$warning-light: #F3D19E;
+
+$danger-color: #F56C6C;        // 危险 (红色)
+$danger-dark: #C4564A;
+$danger-light: #FBEBE5;
+
+$error-color: #F56C6C;         // 错误 (同危险)
+$info-color: #909399;          // 信息 (灰色)
+
+// 灰度系统
+$color-white: #FFFFFF;
+$color-black: #000000;
+$color-transparent: transparent;
+
+$color-gray-1: #F5F7FA;        // 背景色 1
+$color-gray-2: #EBF0F5;        // 背景色 2
+$color-gray-3: #DFE4E8;        // 边框色
+$color-gray-4: #BFBFBF;        // 禁用文字
+$color-gray-5: #8A8A8A;        // 次要文字
+$color-gray-6: #333333;        // 主要文字
+
+// 文字色系
+$text-primary: #333333;        // 主文字
+$text-secondary: #666666;      // 次要文字
+$text-disabled: #999999;       // 禁用文字
+$text-placeholder: #CCCCCC;    // 占位符文字
+
+// 背景色系
+$bg-primary: #F5F7FA;
+$bg-secondary: #FFFFFF;
+$bg-tertiary: #F0F2F5;
+
+// ========== 间距系统 ==========
+$spacing-xs: 4px;              // 极小
+$spacing-sm: 8px;              // 小
+$spacing-md: 16px;             // 中
+$spacing-lg: 24px;             // 大
+$spacing-xl: 32px;             // 极大
+$spacing-xxl: 48px;            // 超大
+
+// 简写
+$gap-xs: $spacing-xs;
+$gap-sm: $spacing-sm;
+$gap-md: $spacing-md;
+$gap-lg: $spacing-lg;
+$gap-xl: $spacing-xl;
+
+// ========== 圆角系统 ==========
+$radius-sm: 2px;               // 小圆角
+$radius-md: 4px;               // 中圆角
+$radius-lg: 8px;               // 大圆角
+$radius-xl: 12px;              // 极大圆角
+$radius-round: 50%;            // 圆形
+
+// ========== 字体系统 ==========
+// 字体
+$font-family-base: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+$font-family-code: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+
+// 字号
+$font-size-xs: 12px;           // 极小字号
+$font-size-sm: 14px;           // 小字号
+$font-size-base: 16px;         // 基础字号
+$font-size-lg: 18px;           // 大字号
+$font-size-xl: 20px;           // 极大字号
+$font-size-2xl: 24px;          // 超大字号
+$font-size-3xl: 32px;          // 超超大字号
+
+// 字重
+$font-weight-light: 300;
+$font-weight-normal: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+
+// 行高
+$line-height-tight: 1.2;
+$line-height-normal: 1.5;
+$line-height-relaxed: 1.75;
+$line-height-loose: 2;
+
+// ========== 阴影系统 ==========
+$shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+$shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+$shadow-md: 0 2px 8px rgba(0, 0, 0, 0.15);
+$shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.2);
+$shadow-xl: 0 8px 24px rgba(0, 0, 0, 0.25);
+$shadow-2xl: 0 16px 40px rgba(0, 0, 0, 0.3);
+
+// ========== 过渡和动画 ==========
+$transition-fast: 0.15s ease;
+$transition-normal: 0.3s ease;
+$transition-slow: 0.5s ease;
+
+$transition-timing-linear: linear;
+$transition-timing-ease: ease;
+$transition-timing-ease-in: ease-in;
+$transition-timing-ease-out: ease-out;
+$transition-timing-ease-in-out: ease-in-out;
+
+// ========== 媒体查询断点 ==========
+$breakpoint-xs: 480px;         // 极小屏 (手机竖屏)
+$breakpoint-sm: 768px;         // 小屏 (平板竖屏)
+$breakpoint-md: 992px;         // 中屏 (平板横屏)
+$breakpoint-lg: 1200px;        // 大屏 (桌面)
+$breakpoint-xl: 1408px;        // 极大屏 (宽屏桌面)
+$breakpoint-2xl: 1920px;       // 超大屏 (4K)
+
+// ========== Z-index 堆叠顺序 ==========
+$z-index-dropdown: 1050;
+$z-index-sticky: 1020;
+$z-index-fixed: 1030;
+$z-index-modal-backdrop: 1040;
+$z-index-modal: 1060;
+$z-index-popover: 1070;
+$z-index-tooltip: 1080;
+$z-index-notification: 1090;
+
+// ========== 动画时长 ==========
+$animation-duration-fast: 0.1s;
+$animation-duration-normal: 0.3s;
+$animation-duration-slow: 0.5s;
+$animation-duration-slower: 0.8s;
+
+// ========== 边框 ==========
+$border-width-sm: 1px;
+$border-width-md: 2px;
+$border-width-lg: 4px;
+
+$border-color: $color-gray-3;
+$border-style: solid;
+$border-radius: $radius-md;
+
+// ========== 默认边框 ==========
+$border-default: $border-width-sm $border-style $border-color;
+$border-bottom: $border-width-sm $border-style $border-color;
+
+// ========== 透明度 ==========
+$opacity-disabled: 0.5;
+$opacity-hover: 0.7;
+$opacity-active: 0.85;
+
+// ========== 其他 ==========
+// 默认间距
+$default-padding: $spacing-md;
+$default-margin: $spacing-md;
+
+// 默认大小
+$default-width: auto;
+$default-height: auto;
+$default-min-height: 32px;
+$default-max-width: 100%;
+
+// 输入框高度
+$input-height-sm: 28px;
+$input-height-md: 36px;
+$input-height-lg: 44px;
+
+// 按钮高度
+$button-height-sm: 28px;
+$button-height-md: 36px;
+$button-height-lg: 44px;
+$button-height-xl: 52px;
+
+// 按钮填充
+$button-padding-sm: 4px 12px;
+$button-padding-md: 8px 16px;
+$button-padding-lg: 12px 24px;

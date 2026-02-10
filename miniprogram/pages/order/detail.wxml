@@ -1,0 +1,177 @@
+<view class="container">
+  <!-- 加载状态 -->
+  <view wx:if="{{loading}}" class="loading-container">
+    <view class="spinner"></view>
+    <text>加载中...</text>
+  </view>
+
+  <!-- 新订单模式 -->
+  <view wx:if="{{type === 'new' && !loading}}" class="new-order">
+    <!-- 收货地址 -->
+    <view class="section">
+      <view class="section-title">收货地址</view>
+      <view class="address-input-group">
+        <textarea
+          class="address-input"
+          placeholder="请输入收货地址"
+          value="{{deliveryAddress}}"
+          bindinput="onAddressChange"
+          maxlength="200"
+        ></textarea>
+        <view class="char-count">{{deliveryAddress.length}}/200</view>
+      </view>
+    </view>
+
+    <!-- 订单商品 -->
+    <view class="section">
+      <view class="section-title">订单商品</view>
+      <view class="items-list">
+        <view wx:for="{{orderItems}}" wx:key="id" class="item-row">
+          <view class="item-name">{{item.name}}</view>
+          <view class="item-details">
+            <text class="quantity">x{{item.quantity}}</text>
+            <text class="price">¥{{(item.price * item.quantity).toFixed(2)}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 支付方式 -->
+    <view class="section">
+      <view class="section-title">支付方式</view>
+      <view class="payment-methods">
+        <view
+          class="payment-item {{paymentMethod === 'wechat' ? 'active' : ''}}"
+          data-method="wechat"
+          bindtap="selectPaymentMethod"
+        >
+          <view class="radio" wx:if="{{paymentMethod === 'wechat'}}">●</view>
+          <view class="radio" wx:else>○</view>
+          <text>微信支付</text>
+        </view>
+        <view
+          class="payment-item {{paymentMethod === 'alipay' ? 'active' : ''}}"
+          data-method="alipay"
+          bindtap="selectPaymentMethod"
+        >
+          <view class="radio" wx:if="{{paymentMethod === 'alipay'}}">●</view>
+          <view class="radio" wx:else>○</view>
+          <text>支付宝</text>
+        </view>
+        <view
+          class="payment-item {{paymentMethod === 'cash' ? 'active' : ''}}"
+          data-method="cash"
+          bindtap="selectPaymentMethod"
+        >
+          <view class="radio" wx:if="{{paymentMethod === 'cash'}}">●</view>
+          <view class="radio" wx:else>○</view>
+          <text>货到付款</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 备注 -->
+    <view class="section">
+      <view class="section-title">备注</view>
+      <view class="remarks-input-group">
+        <textarea
+          class="remarks-input"
+          placeholder="可选：添加订单备注（如不需要可跳过）"
+          value="{{remarks}}"
+          bindinput="onRemarksChange"
+          maxlength="500"
+        ></textarea>
+        <view class="char-count">{{remarks.length}}/500</view>
+      </view>
+    </view>
+
+    <!-- 金额汇总 -->
+    <view class="section summary-section">
+      <view class="summary-row">
+        <text class="label">小计:</text>
+        <text class="value">¥{{calculateTotal()}}</text>
+      </view>
+      <view class="summary-row highlight">
+        <text class="label">应付:</text>
+        <text class="value">¥{{calculateTotal()}}</text>
+      </view>
+    </view>
+
+    <!-- 操作按钮 -->
+    <view class="action-buttons">
+      <button class="btn btn-secondary" bindtap="navigateBack">返回</button>
+      <button class="btn btn-primary" bindtap="submitOrder" disabled="{{submitting}}">
+        {{submitting ? '提交中...' : '提交订单'}}
+      </button>
+    </view>
+  </view>
+
+  <!-- 查看订单模式 -->
+  <view wx:if="{{type === 'view' && !loading && order}}" class="order-detail">
+    <!-- 订单头部 -->
+    <view class="order-header-section">
+      <view class="order-number">订单号: {{order.order_no}}</view>
+      <view class="order-status {{order.status}}">
+        {{order.status === 'pending' ? '待支付' : order.status === 'completed' ? '已完成' : '已取消'}}
+      </view>
+      <view class="order-date">{{order.created_at}}</view>
+    </view>
+
+    <!-- 订单商品 -->
+    <view class="section">
+      <view class="section-title">订单商品</view>
+      <view class="items-list">
+        <view wx:for="{{order.items}}" wx:key="id" class="item-row">
+          <view class="item-name">{{item.name}}</view>
+          <view class="item-details">
+            <text class="quantity">x{{item.quantity}}</text>
+            <text class="price">¥{{(item.price * item.quantity).toFixed(2)}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 收货地址 -->
+    <view class="section" wx:if="{{order.delivery_address}}">
+      <view class="section-title">收货地址</view>
+      <view class="address-text">{{order.delivery_address}}</view>
+    </view>
+
+    <!-- 金额信息 -->
+    <view class="section summary-section">
+      <view class="summary-row">
+        <text class="label">小计:</text>
+        <text class="value">¥{{order.total_amount}}</text>
+      </view>
+      <view class="summary-row" wx:if="{{order.discount_amount > 0}}">
+        <text class="label">优惠:</text>
+        <text class="value discount">-¥{{order.discount_amount}}</text>
+      </view>
+      <view class="summary-row highlight">
+        <text class="label">应付:</text>
+        <text class="value">¥{{order.actual_amount}}</text>
+      </view>
+    </view>
+
+    <!-- 支付信息 -->
+    <view class="section" wx:if="{{order.payment_method}}">
+      <view class="section-title">支付信息</view>
+      <view class="info-row">
+        <text class="label">支付方式:</text>
+        <text class="value">{{order.payment_method === 'wechat' ? '微信支付' : order.payment_method === 'alipay' ? '支付宝' : '货到付款'}}</text>
+      </view>
+      <view class="info-row" wx:if="{{order.payment_date}}">
+        <text class="label">支付时间:</text>
+        <text class="value">{{order.payment_date}}</text>
+      </view>
+    </view>
+
+    <!-- 操作按钮 -->
+    <view class="action-buttons">
+      <button class="btn btn-secondary" bindtap="navigateBack">返回</button>
+      <button class="btn btn-danger" wx:if="{{order.status === 'pending'}}" bindtap="cancelOrder">
+        取消订单
+      </button>
+    </view>
+  </view>
+</view>

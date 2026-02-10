@@ -1,0 +1,79 @@
+<view class="container">
+  <!-- 搜索栏 -->
+  <view class="search-bar">
+    <view class="search-input-wrapper" bindtap="onSearch">
+      <view class="search-icon">🔍</view>
+      <text class="search-placeholder">搜索产品...</text>
+    </view>
+  </view>
+
+  <!-- 轮播图 -->
+  <swiper class="banners" indicator-dots="{{true}}" indicator-active-color="#1890ff" autoplay="{{true}}" interval="{{3000}}">
+    <swiper-item wx:for="{{banners}}" wx:key="id" bindtap="onBannerTap" data-banner="{{item}}">
+      <image src="{{item.image}}" class="banner-image" />
+      <view class="banner-overlay">
+        <view class="banner-title">{{item.title}}</view>
+      </view>
+    </swiper-item>
+  </swiper>
+
+  <!-- 分类导航 -->
+  <view class="categories-section">
+    <view class="section-header">
+      <text class="section-title">热门分类</text>
+      <text class="more-link" bindtap="onNavigateToProducts">更多 ›</text>
+    </view>
+    <view class="categories-grid">
+      <view wx:for="{{categories}}" wx:key="id" class="category-item" data-id="{{item.id}}" bindtap="onCategoryTap">
+        <view class="category-icon">🏷️</view>
+        <view class="category-name">{{item.name}}</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 推荐产品 -->
+  <view class="featured-section">
+    <view class="section-header">
+      <text class="section-title">推荐产品</text>
+      <text class="more-link" bindtap="onNavigateToProducts">更多 ›</text>
+    </view>
+
+    <view wx:if="{{loading}}" class="loading-indicator">
+      <view class="spinner"></view>
+    </view>
+
+    <view wx:if="{{!loading && featuredProducts.length === 0}}" class="empty-state">
+      <view class="empty-text">暂无推荐产品</view>
+    </view>
+
+    <view class="products-grid">
+      <view wx:for="{{featuredProducts}}" wx:key="id" class="product-card" data-id="{{item.id}}" bindtap="onProductTap">
+        <view class="product-image-wrapper">
+          <image class="product-image" src="{{item.image_url || '/images/placeholder.png'}}" />
+          <view wx:if="{{item.is_featured}}" class="featured-badge">推荐</view>
+        </view>
+
+        <view class="product-info">
+          <view class="product-name">{{item.name}}</view>
+          <view class="product-description">{{item.description}}</view>
+
+          <view class="product-footer">
+            <view class="product-price">
+              <view class="price-label">¥</view>
+              <view class="price-value">{{item.member_price || item.non_member_price}}</view>
+            </view>
+            <view class="add-to-cart-btn" catchtap="quickAddToCart" data-product="{{item}}">
+              加入购物车
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部信息 -->
+  <view class="footer-info">
+    <view class="info-text">© 2024 养生店管理系统</view>
+    <view class="info-text">为您提供最优质的养生服务</view>
+  </view>
+</view>

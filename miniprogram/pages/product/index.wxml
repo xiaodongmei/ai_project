@@ -1,0 +1,86 @@
+<view class="container">
+  <!-- 搜索栏 -->
+  <view class="search-bar">
+    <view class="search-input-wrapper">
+      <input
+        class="search-input"
+        type="text"
+        placeholder="搜索产品..."
+        value="{{searchText}}"
+        bindinput="onSearch"
+        bindconfirm="performSearch"
+      />
+      <view class="search-icon">🔍</view>
+    </view>
+    <view wx:if="{{searchText}}" class="clear-btn" bindtap="clearSearch">清除</view>
+  </view>
+
+  <!-- 分类导航 -->
+  <scroll-view class="category-scroll" scroll-x="true" scroll-left="0">
+    <view
+      class="category-item {{currentCategory === 'all' ? 'active' : ''}}"
+      data-id="all"
+      bindtap="onCategoryChange"
+    >
+      全部产品
+    </view>
+    <view
+      wx:for="{{categories}}"
+      wx:key="id"
+      class="category-item {{currentCategory === item.id ? 'active' : ''}}"
+      data-id="{{item.id}}"
+      bindtap="onCategoryChange"
+    >
+      {{item.name}}
+    </view>
+  </scroll-view>
+
+  <!-- 产品列表 -->
+  <view wx:if="{{!loading && products.length === 0}}" class="empty-state">
+    <view class="empty-icon">📦</view>
+    <view class="empty-text">暂无产品</view>
+  </view>
+
+  <view class="products-grid">
+    <view wx:for="{{products}}" wx:key="id" class="product-card">
+      <view class="product-image-wrapper" bindtap="viewProductDetail" data-id="{{item.id}}">
+        <image class="product-image" src="{{item.image_url || '/images/placeholder.png'}}" />
+        <view wx:if="{{item.is_featured}}" class="featured-badge">推荐</view>
+      </view>
+
+      <view class="product-info">
+        <view class="product-name">{{item.name}}</view>
+        <view class="product-description">{{item.description}}</view>
+
+        <view class="product-footer">
+          <view class="product-price">
+            <view class="price-label">¥</view>
+            <view class="price-value">{{item.member_price || item.non_member_price}}</view>
+          </view>
+          <view
+            class="add-to-cart-btn"
+            bindtap="quickAddToCart"
+            data-product="{{item}}"
+          >
+            加入购物车
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 加载提示 -->
+  <view wx:if="{{loading}}" class="loading-indicator">
+    <view class="spinner"></view>
+    <view class="loading-text">加载中...</view>
+  </view>
+
+  <view wx:if="{{!hasMore && products.length > 0}}" class="no-more">
+    已经没有更多产品了
+  </view>
+
+  <!-- 返回顶部按钮 -->
+  <view wx:if="{{scrollTop > 300}}" class="scroll-to-top" bindtap="scrollToTop">
+    ↑
+  </view>
+</view>
