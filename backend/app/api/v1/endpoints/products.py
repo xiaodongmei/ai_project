@@ -1,25 +1,30 @@
-"""产品管理端点 - 演示数据"""
+"""产品管理端点 - 根据行业模板动态生成分类和演示数据"""
 from fastapi import APIRouter, Query
 from typing import Optional
+
+from app.api.v1.endpoints.config import _shop_config, _merge_config
 
 products_router = APIRouter(prefix="/products", tags=["products"])
 categories_router = APIRouter(prefix="/product-categories", tags=["categories"])
 router = APIRouter()
 
-# 产品分类
-categories_db = [
-    {"id": 1, "name": "养方", "description": "养生药方系列", "display_order": 1, "is_active": True},
-    {"id": 2, "name": "枕头", "description": "养生枕头", "display_order": 2, "is_active": True},
-    {"id": 3, "name": "养生小食", "description": "健康零食", "display_order": 3, "is_active": True},
-    {"id": 4, "name": "艾草棒", "description": "艾灸用品", "display_order": 4, "is_active": True},
-    {"id": 5, "name": "手提袋", "description": "包装袋", "display_order": 5, "is_active": True},
-    {"id": 6, "name": "热敷贴", "description": "热敷理疗贴", "display_order": 6, "is_active": True},
-    {"id": 7, "name": "养生茶", "description": "养生茶饮", "display_order": 7, "is_active": True},
-    {"id": 8, "name": "三伏养生", "description": "三伏天养生产品", "display_order": 8, "is_active": True},
-    {"id": 9, "name": "合液", "description": "养生合液", "display_order": 9, "is_active": True},
-]
+# 自定义分类（运行时修改）
+_custom_categories = []
 
-# 产品数据
+
+def _get_categories():
+    """获取当前行业的商品分类"""
+    if _custom_categories:
+        return _custom_categories
+    cfg = _merge_config(_shop_config)
+    product_cats = cfg.get("product_categories", [])
+    return [
+        {"id": i + 1, "name": name, "description": "", "display_order": i + 1, "is_active": True}
+        for i, name in enumerate(product_cats)
+    ]
+
+
+# 产品数据（初始演示数据 - 养生类默认）
 products_db = [
     {"id": 1, "name": "低糖铁陈果芝麻丸(升级款)", "category_id": 1, "category_name": "养方", "price": 14.9, "member_price": 14.9, "stock": 200, "sales_volume": 86, "is_active": True, "image": None},
     {"id": 2, "name": "黄荟山楂膏155g", "category_id": 1, "category_name": "养方", "price": 14.9, "member_price": 14.9, "stock": 150, "sales_volume": 65, "is_active": True, "image": None},
@@ -47,13 +52,14 @@ products_db = [
 # 产品分类接口
 @categories_router.get("")
 async def list_categories():
-    """获取产品分类列表"""
-    return {"total": len(categories_db), "items": categories_db}
+    """获取产品分类列表 - 根据行业模板动态生成"""
+    cats = _get_categories()
+    return {"total": len(cats), "items": cats}
 
 
 @categories_router.get("/{category_id}")
 async def get_category(category_id: int):
-    for c in categories_db:
+    for c in _get_categories():
         if c["id"] == category_id:
             return c
     return {"error": "Category not found"}
@@ -61,15 +67,21 @@ async def get_category(category_id: int):
 
 @categories_router.post("/")
 async def create_category(data: dict):
-    new_id = max([c["id"] for c in categories_db], default=0) + 1
+    cats = _get_categories()
+    if not _custom_categories:
+        _custom_categories.extend(cats)
+    new_id = max([c["id"] for c in _custom_categories], default=0) + 1
     new_cat = {"id": new_id, "name": data.get("name"), "description": data.get("description", ""), "display_order": data.get("display_order", 0), "is_active": True}
-    categories_db.append(new_cat)
+    _custom_categories.append(new_cat)
     return new_cat
 
 
 @categories_router.put("/{category_id}")
 async def update_category(category_id: int, data: dict):
-    for c in categories_db:
+    cats = _get_categories()
+    if not _custom_categories:
+        _custom_categories.extend(cats)
+    for c in _custom_categories:
         if c["id"] == category_id:
             c.update(data)
             return c
@@ -78,8 +90,10 @@ async def update_category(category_id: int, data: dict):
 
 @categories_router.delete("/{category_id}")
 async def delete_category(category_id: int):
-    global categories_db
-    categories_db = [c for c in categories_db if c["id"] != category_id]
+    cats = _get_categories()
+    if not _custom_categories:
+        _custom_categories.extend(cats)
+    _custom_categories[:] = [c for c in _custom_categories if c["id"] != category_id]
     return {"success": True}
 
 
@@ -114,7 +128,7 @@ async def get_product(product_id: int):
 async def create_product(data: dict):
     new_id = max([p["id"] for p in products_db], default=0) + 1
     cat_name = ""
-    for c in categories_db:
+    for c in _get_categories():
         if c["id"] == data.get("category_id"):
             cat_name = c["name"]
             break

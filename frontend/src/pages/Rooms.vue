@@ -3,11 +3,11 @@
     <!-- 顶部总览 -->
     <div class="summary-bar">
       <div class="summary-item">
-        <span class="summary-label">房间</span>
+        <span class="summary-label">{{ shopConfig.spaceLabel }}</span>
         <span class="summary-value">{{ summary.rooms?.available || 0 }}<span class="summary-unit">/{{ summary.rooms?.total || 0 }} 空</span></span>
       </div>
       <div class="summary-item">
-        <span class="summary-label">床位</span>
+        <span class="summary-label">{{ shopConfig.stationLabel }}</span>
         <span class="summary-value">{{ summary.beds?.available || 0 }}<span class="summary-unit">/{{ summary.beds?.total || 0 }} 空</span></span>
       </div>
       <div class="summary-item">
@@ -15,7 +15,7 @@
         <span class="summary-value summary-value--vip">{{ summary.vip?.available || 0 }}<span class="summary-unit">/{{ summary.vip?.total || 0 }} 可用</span></span>
       </div>
       <div class="summary-item">
-        <span class="summary-label">技师</span>
+        <span class="summary-label">{{ shopConfig.providerLabel }}</span>
         <span class="summary-value">{{ summary.technicians?.idle || 0 }}<span class="summary-unit">/{{ summary.technicians?.total || 0 }} 空闲</span></span>
       </div>
       <div class="summary-item" v-if="summary.technicians?.finishing_soon">
@@ -38,14 +38,14 @@
       >{{ f.label }}</button>
     </div>
 
-    <!-- 房间卡片网格 -->
+    <!-- 空间卡片网格 -->
     <div class="rooms-grid">
       <div
         v-for="room in filteredRooms"
         :key="room.id"
         :class="['room-card', { 'room-card--occupied': !room.is_available, 'room-card--vip': room.is_vip }]"
       >
-        <!-- 房间头部 -->
+        <!-- 空间头部 -->
         <div class="room-header">
           <div class="room-number-info">
             <span class="room-number">{{ room.room_number }}</span>
@@ -57,13 +57,13 @@
           </span>
         </div>
 
-        <!-- 房间类型和价格 -->
+        <!-- 类型和价格 -->
         <div class="room-meta">
-          <span>{{ room.type }} · {{ room.capacity }}床位</span>
-          <span>¥{{ room.price_per_hour }}/h</span>
+          <span>{{ room.type }} · {{ room.capacity }}{{ shopConfig.stationLabel }}</span>
+          <span v-if="room.price_per_hour > 0">¥{{ room.price_per_hour }}/h</span>
         </div>
 
-        <!-- 床位列表 -->
+        <!-- 工位列表 -->
         <div class="beds-list">
           <div
             v-for="bed in room.beds"
@@ -99,7 +99,7 @@
                 ></div>
                 <span class="progress-text">{{ bed.service.progress }}%</span>
               </div>
-              <!-- 技师 -->
+              <!-- 服务人员 -->
               <div class="bed-technician" v-if="bed.technician">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="tech-icon"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                 <span>{{ bed.technician.name }}</span>
@@ -109,9 +109,9 @@
               </div>
               <!-- 快速操作按钮 -->
               <div class="bed-actions">
-                <button class="action-btn action-btn--swap" @click="openChangeTech(room, bed)" title="换技师">换技师</button>
-                <button class="action-btn action-btn--extend" @click="extendService(room.id, bed.id)" title="延长">延长</button>
-                <button class="action-btn action-btn--checkout" @click="checkoutBed(room.id, bed.id)" title="结账">结账</button>
+                <button class="action-btn action-btn--swap" @click="openChangeTech(room, bed)">换{{ shopConfig.providerLabel }}</button>
+                <button class="action-btn action-btn--extend" @click="extendService(room.id, bed.id)">延长</button>
+                <button class="action-btn action-btn--checkout" @click="checkoutBed(room.id, bed.id)">结账</button>
               </div>
             </template>
 
@@ -124,7 +124,7 @@
             <template v-else>
               <button class="open-bed-btn" @click="openBed(room, bed)">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="open-icon"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                开床
+                开始服务
               </button>
             </template>
           </div>
@@ -132,9 +132,9 @@
       </div>
     </div>
 
-    <!-- 技师列表面板 -->
+    <!-- 服务人员列表面板 -->
     <div class="technician-panel">
-      <h3 class="panel-title">技师状态</h3>
+      <h3 class="panel-title">{{ shopConfig.providerLabel }}状态</h3>
       <div class="tech-list">
         <div v-for="tech in technicians" :key="tech.id" class="tech-card">
           <div class="tech-avatar">{{ tech.name.charAt(0) }}</div>
@@ -145,20 +145,20 @@
           <span :class="['tech-badge', `tech-badge--${tech.status}`]">
             {{ techStatusText(tech.status) }}
           </span>
-          <span class="tech-room" v-if="tech.current_room">{{ tech.current_room }}房</span>
+          <span class="tech-room" v-if="tech.current_room">{{ tech.current_room }}{{ shopConfig.spaceLabel }}</span>
         </div>
       </div>
     </div>
 
-    <!-- 换技师弹窗 -->
+    <!-- 换服务人员弹窗 -->
     <div v-if="showChangeTechDialog" class="dialog-overlay" @click.self="showChangeTechDialog = false">
       <div class="dialog-box">
         <div class="dialog-header">
-          <h3>更换技师</h3>
+          <h3>更换{{ shopConfig.providerLabel }}</h3>
           <button class="dialog-close" @click="showChangeTechDialog = false">✕</button>
         </div>
         <div class="dialog-body">
-          <p class="dialog-info">{{ changeTechTarget.room?.room_number }}房 {{ changeTechTarget.bed?.name }} - 当前技师：{{ changeTechTarget.bed?.technician?.name }}</p>
+          <p class="dialog-info">{{ changeTechTarget.room?.room_number }}{{ shopConfig.spaceLabel }} {{ changeTechTarget.bed?.name }} - 当前{{ shopConfig.providerLabel }}：{{ changeTechTarget.bed?.technician?.name }}</p>
           <div class="tech-options">
             <button
               v-for="tech in availableTechnicians"
@@ -180,6 +180,9 @@
 import { ref, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { roomsApi } from '@/api/rooms'
+import { useShopConfigStore } from '@/store/shopConfig'
+
+const shopConfig = useShopConfigStore()
 
 const rooms = ref([])
 const technicians = ref([])
@@ -202,7 +205,7 @@ const availableTechnicians = computed(() => {
   return technicians.value.filter(t => t.status === 'idle')
 })
 
-const bedStatusText = (s) => ({ available: '空闲', occupied: '使用中', cleaning: '清洁中' }[s] || s)
+const bedStatusText = (s) => ({ available: '空闲', occupied: '使用中', cleaning: '清洁中', maintenance: '维护中' }[s] || s)
 const techStatusText = (s) => ({ working: '服务中', finishing: '即将结束', idle: '空闲' }[s] || s)
 
 const loadData = async () => {
@@ -224,7 +227,6 @@ const loadData = async () => {
     const sumRes = await roomsApi.getSummary?.() || {}
     summary.value = sumRes || {}
   } catch (e) {
-    // 从本地数据计算
     const total = rooms.value.length
     const available = rooms.value.filter(r => r.is_available).length
     const vipTotal = rooms.value.filter(r => r.is_vip).length
@@ -246,10 +248,10 @@ const openBed = async (room, bed) => {
       service: { name: '待选择服务', progress: 0 },
       technician: { name: '待分配', status: 'working' },
     })
-    ElMessage.success(`${room.room_number}房 ${bed.name} 已开床`)
+    ElMessage.success(`${room.room_number} ${bed.name} 已开始服务`)
     await loadData()
   } catch (e) {
-    ElMessage.error('开床失败')
+    ElMessage.error('操作失败')
   }
 }
 
@@ -282,11 +284,11 @@ const confirmChangeTech = async (techName) => {
   try {
     const { room, bed } = changeTechTarget.value
     await roomsApi.changeTechnician?.(room.id, bed.id, { technician_name: techName })
-    ElMessage.success(`已更换技师为 ${techName}`)
+    ElMessage.success(`已更换为 ${techName}`)
     showChangeTechDialog.value = false
     await loadData()
   } catch (e) {
-    ElMessage.error('更换技师失败')
+    ElMessage.error('更换失败')
   }
 }
 
@@ -325,19 +327,19 @@ $purple: #8b5cf6;
   &--warn { color: $orange; }
 }
 .summary-unit { font-size: 13px; font-weight: 400; color: $text-secondary; margin-left: 2px; }
-.btn-refresh { margin-left: auto; display: flex; align-items: center; gap: 6px; padding: 8px 16px; border: 1px solid $border; border-radius: 8px; background: white; font-size: 13px; cursor: pointer; transition: all 0.2s;
+.btn-refresh { margin-left: auto; display: flex; align-items: center; gap: 6px; padding: 8px 16px; border: 1px solid $border; border-radius: 8px; background: white; color: $text-main; font-size: 13px; cursor: pointer; transition: all 0.2s;
   &:hover { border-color: $primary; color: $primary; }
   .refresh-icon { width: 14px; height: 14px; }
 }
 
 // 楼层筛选
 .floor-filter { display: flex; gap: 8px; margin-bottom: 16px; }
-.floor-btn { padding: 6px 16px; border: 1px solid $border; border-radius: 8px; background: white; font-size: 13px; cursor: pointer; transition: all 0.2s;
+.floor-btn { padding: 6px 16px; border: 1px solid $border; border-radius: 8px; background: white; color: $text-main; font-size: 13px; cursor: pointer; transition: all 0.2s;
   &--active { background: $primary; color: white; border-color: $primary; }
   &:hover:not(.floor-btn--active) { border-color: $primary; color: $primary; }
 }
 
-// 房间卡片
+// 空间卡片
 .rooms-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; margin-bottom: 24px; }
 
 .room-card {
@@ -359,7 +361,7 @@ $purple: #8b5cf6;
 }
 .room-meta { font-size: 12px; color: $text-muted; display: flex; justify-content: space-between; margin-bottom: 12px; }
 
-// 床位
+// 工位
 .beds-list { display: flex; flex-direction: column; gap: 10px; }
 .bed-item {
   padding: 12px; border-radius: 10px; border: 1px solid $border;
@@ -393,7 +395,7 @@ $purple: #8b5cf6;
 }
 .progress-text { font-size: 11px; color: $text-muted; white-space: nowrap; margin-left: 4px; position: absolute; right: -32px; }
 
-// 技师
+// 服务人员
 .bed-technician { display: flex; align-items: center; gap: 6px; font-size: 12px; color: $text-secondary; margin-bottom: 8px;
   .tech-icon { width: 14px; height: 14px; }
 }
@@ -404,13 +406,13 @@ $purple: #8b5cf6;
 
 // 操作按钮
 .bed-actions { display: flex; gap: 6px; }
-.action-btn { padding: 4px 12px; border-radius: 6px; font-size: 12px; border: 1px solid $border; background: white; cursor: pointer; transition: all 0.15s;
+.action-btn { padding: 4px 12px; border-radius: 6px; font-size: 12px; border: 1px solid $border; background: white; color: $text-main; cursor: pointer; transition: all 0.15s;
   &--swap { &:hover { color: $primary; border-color: $primary; } }
   &--extend { &:hover { color: $orange; border-color: $orange; } }
   &--checkout { &:hover { color: $green; border-color: $green; background: $green-light; } }
 }
 
-// 开床按钮
+// 开始服务按钮
 .open-bed-btn { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; padding: 10px; border: 1px dashed $border; border-radius: 8px; background: none; color: $primary; font-size: 13px; cursor: pointer; transition: all 0.2s;
   .open-icon { width: 16px; height: 16px; }
   &:hover { background: $primary-light; border-color: $primary; }
@@ -419,7 +421,7 @@ $purple: #8b5cf6;
 // 清洁提示
 .cleaning-note { font-size: 12px; color: $primary; padding: 4px 0; }
 
-// 技师面板
+// 服务人员面板
 .technician-panel { background: white; border: 1px solid $border; border-radius: 12px; padding: 20px; }
 .panel-title { font-size: 16px; font-weight: 600; color: $text-main; margin: 0 0 14px 0; }
 .tech-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }

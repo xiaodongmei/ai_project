@@ -26,10 +26,7 @@
 
       <el-form-item label="岗位" prop="position">
         <el-select v-model="form.position" placeholder="请选择岗位">
-          <el-option label="店长" value="店长" />
-          <el-option label="调理师" value="调理师" />
-          <el-option label="收银员" value="收银员" />
-          <el-option label="前台" value="前台" />
+          <el-option v-for="role in shopConfig.staffRoles" :key="role" :label="role" :value="role" />
           <el-option label="其他" value="其他" />
         </el-select>
       </el-form-item>
@@ -87,6 +84,9 @@
 import { ref, computed, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import * as employeesApi from '@/api/employees'
+import { useShopConfigStore } from '@/store/shopConfig'
+
+const shopConfig = useShopConfigStore()
 
 const props = defineProps({
   modelValue: {

@@ -78,6 +78,9 @@
 import { ref, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import * as productsApi from '@/api/products'
+import { useShopConfigStore } from '@/store/shopConfig'
+
+const shopConfig = useShopConfigStore()
 
 const pageTabs = [
   { id: 'project', label: '项目' },
@@ -154,11 +157,11 @@ const loadData = async () => {
     const catRes = await productsApi.getCategories()
     categories.value = catRes?.items || catRes || []
   } catch (e) {
-    categories.value = [
-      { id: 1, name: '养方' }, { id: 2, name: '枕头' }, { id: 3, name: '养生小食' },
-      { id: 4, name: '艾草棒' }, { id: 5, name: '手提袋' }, { id: 6, name: '热敷贴' },
-      { id: 7, name: '养生茶' }, { id: 8, name: '三伏养生' }, { id: 9, name: '合液' },
-    ]
+    // 使用行业模板的产品分类作为 fallback
+    categories.value = shopConfig.productCategories.map((name, i) => ({
+      id: i + 1,
+      name,
+    }))
   }
 
   try {

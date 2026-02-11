@@ -3,7 +3,7 @@
     <!-- 顶部时间选择 + 店铺信息 -->
     <div class="page-top">
       <div class="shop-info">
-        <span class="shop-name">养生堂</span>
+        <span class="shop-name">{{ shopConfig.shopName }}</span>
         <span class="shop-sep">·</span>
         <span class="shop-detail">门店统计</span>
       </div>
@@ -198,6 +198,9 @@
 import { ref, onMounted, nextTick } from 'vue'
 import * as echarts from 'echarts'
 import * as statisticsApi from '@/api/statistics'
+import { useShopConfigStore } from '@/store/shopConfig'
+
+const shopConfig = useShopConfigStore()
 
 const startDate = ref(new Date().toISOString().slice(0, 10))
 const endDate = ref(new Date().toISOString().slice(0, 10))
@@ -301,7 +304,7 @@ const loadData = async () => {
     dashboard.value = res || {}
     lastUpdate.value = new Date().toLocaleString('zh-CN')
   } catch (e) {
-    // 使用默认数据
+    // 使用默认数据 - 员工名称使用通用名
     dashboard.value = {
       shop_revenue: 829.80, shop_actual_revenue: 802.32, member_recharge: 295.06,
       one_yuan_cards: 0, card_count: 3, valid_orders: 13, total_items: 12, refund_orders: 0,
@@ -320,10 +323,10 @@ const loadData = async () => {
       },
       top_employees: [
         { rank: 1, name: '店长', performance: 848.8 },
-        { rank: 2, name: '张月芳', performance: 250 },
-        { rank: 3, name: '惠珠秀', performance: 150 },
-        { rank: 4, name: '杨枫', performance: 100 },
-        { rank: 5, name: '王浪峰', performance: 80 },
+        { rank: 2, name: '李强', performance: 250 },
+        { rank: 3, name: '王月', performance: 150 },
+        { rank: 4, name: '赵敏', performance: 100 },
+        { rank: 5, name: '张峰', performance: 80 },
       ],
     }
   }
@@ -332,13 +335,17 @@ const loadData = async () => {
     const res = await statisticsApi.getProductSalesStatistics({})
     productSales.value = res?.data || []
   } catch (e) {
-    productSales.value = [
-      { product_name: '肩颈疗法', sales_quantity: 120, sales_amount: 5880, percentage: 28.5 },
-      { product_name: '足疗', sales_quantity: 95, sales_amount: 4750, percentage: 22.9 },
-      { product_name: '拔罐', sales_quantity: 78, sales_amount: 3900, percentage: 18.9 },
-      { product_name: '刮痧', sales_quantity: 65, sales_amount: 3250, percentage: 15.7 },
-      { product_name: '艾灸', sales_quantity: 42, sales_amount: 2100, percentage: 10.2 },
-    ]
+    // 使用行业模板的服务分类作为 fallback 数据
+    const cats = shopConfig.serviceCategories.slice(0, 5)
+    const mockAmounts = [5880, 4750, 3900, 3250, 2100]
+    const mockQty = [120, 95, 78, 65, 42]
+    const mockPct = [28.5, 22.9, 18.9, 15.7, 10.2]
+    productSales.value = cats.map((name, i) => ({
+      product_name: name,
+      sales_quantity: mockQty[i] || 30,
+      sales_amount: mockAmounts[i] || 1500,
+      percentage: mockPct[i] || 10,
+    }))
   }
 
   await nextTick()

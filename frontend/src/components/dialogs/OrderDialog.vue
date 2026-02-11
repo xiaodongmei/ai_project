@@ -16,18 +16,25 @@
         <el-input v-model="form.customer_name" placeholder="请输入或选择顾客" />
       </el-form-item>
 
-      <el-form-item label="服务员" prop="employee_name">
-        <el-input v-model="form.employee_name" placeholder="请选择服务员" />
+      <el-form-item :label="shopConfig.providerLabel" prop="employee_name">
+        <el-select v-model="form.employee_name" :placeholder="`请选择${shopConfig.providerLabel}`" filterable>
+          <el-option
+            v-for="emp in employeeList"
+            :key="emp.id"
+            :label="`${emp.name} (${emp.position})`"
+            :value="emp.name"
+          />
+        </el-select>
       </el-form-item>
 
       <el-form-item label="服务项目" prop="service_items">
-        <el-select v-model="form.service_items" multiple placeholder="请选择服务项目">
-          <el-option label="肩颈疗法" value="肩颈疗法" />
-          <el-option label="足疗" value="足疗" />
-          <el-option label="拔罐" value="拔罐" />
-          <el-option label="刮痧" value="刮痧" />
-          <el-option label="艾灸" value="艾灸" />
-          <el-option label="推拿" value="推拿" />
+        <el-select v-model="form.service_items" multiple placeholder="请选择服务项目" filterable>
+          <el-option
+            v-for="svc in serviceItemList"
+            :key="svc.id || svc.name"
+            :label="svc.price ? `${svc.name} (¥${svc.price} / ${svc.duration}分钟)` : svc.name"
+            :value="svc.name"
+          />
         </el-select>
       </el-form-item>
 
@@ -76,9 +83,14 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import * as ordersApi from '@/api/orders'
+import * as employeesApi from '@/api/employees'
+import * as serviceItemsApi from '@/api/serviceItems'
+import { useShopConfigStore } from '@/store/shopConfig'
+
+const shopConfig = useShopConfigStore()
 
 const props = defineProps({
   modelValue: {
@@ -95,6 +107,8 @@ const emit = defineEmits(['update:modelValue', 'save'])
 
 const formRef = ref(null)
 const loading = ref(false)
+const employeeList = ref([])
+const serviceItemList = ref([])
 
 const form = ref({
   customer_name: '',
@@ -109,12 +123,65 @@ const form = ref({
 
 const rules = {
   customer_name: [{ required: true, message: '请输入顾客名称', trigger: 'blur' }],
-  employee_name: [{ required: true, message: '请选择服务员', trigger: 'blur' }],
+  employee_name: [{ required: true, message: `请选择服务人员`, trigger: 'change' }],
   service_items: [{ required: true, message: '请选择服务项目', trigger: 'change' }],
   amount: [{ required: true, message: '请输入金额', trigger: 'change' }],
 }
 
 const isEdit = computed(() => !!props.order)
+
+// 加载员工列表
+const loadEmployees = async () => {
+  try {
+    const res = await employeesApi.getEmployees({ limit: 50 })
+    employeeList.value = res?.items || []
+  } catch {
+    // fallback: 使用空列表
+    employeeList.value = []
+  }
+}
+
+// 加载服务项目列表
+const loadServiceItems = async () => {
+  try {
+    const res = await serviceItemsApi.getServiceItems()
+    serviceItemList.value = res?.items || []
+  } catch {
+    // fallback: 使用shopConfig中的服务分类
+    serviceItemList.value = shopConfig.serviceCategories.map((name, i) => ({
+      id: i + 1,
+      name,
+      price: 0,
+      duration: 60,
+    }))
+  }
+}
+
+// 选择服务项目后自动计算金额
+watch(() => form.value.service_items, (newItems) => {
+  if (!isEdit.value && newItems && newItems.length > 0) {
+    let total = 0
+    for (const itemName of newItems) {
+      const svc = serviceItemList.value.find(s => s.name === itemName)
+      if (svc && svc.price) {
+        total += svc.price
+      }
+    }
+    if (total > 0) {
+      form.value.amount = total
+    }
+  }
+})
+
+watch(
+  () => props.modelValue,
+  (visible) => {
+    if (visible) {
+      loadEmployees()
+      loadServiceItems()
+    }
+  }
+)
 
 watch(
   () => props.order,

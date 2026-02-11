@@ -70,31 +70,19 @@
 import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useUserStore } from '@/store/user'
+import { useShopConfigStore } from '@/store/shopConfig'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { User, Setting, SwitchButton } from '@element-plus/icons-vue'
 
 const router = useRouter()
 const userStore = useUserStore()
+const shopConfig = useShopConfigStore()
 
 const route = useRoute()
 const searchText = ref('')
 
 const breadcrumbs = computed(() => {
-  const pathMap = {
-    '/dashboard': '收银台',
-    '/checkout': '收银台',
-    '/customers': '顾客管理',
-    '/products': '产品管理',
-    '/orders': '订单管理',
-    '/employees': '员工管理',
-    '/statistics': '数据统计',
-    '/rooms': '房间管理',
-    '/appointments': '预约管理',
-    '/profile': '个人资料',
-    '/settings': '系统设置',
-  }
-
-  const currentName = pathMap[route.path] || route.meta?.title || '页面'
+  const currentName = shopConfig.breadcrumbLabels[route.path] || route.meta?.title || '页面'
   return [{ name: currentName, path: route.path }]
 })
 

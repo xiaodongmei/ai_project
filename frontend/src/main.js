@@ -10,9 +10,15 @@ import router from './router'
 import './styles/global.scss'
 
 const app = createApp(App)
+const pinia = createPinia()
 
-app.use(createPinia())
+app.use(pinia)
 app.use(router)
 app.use(ElementPlus)
+
+// 在应用挂载前加载店铺配置
+import { useShopConfigStore } from './store/shopConfig'
+const shopConfigStore = useShopConfigStore()
+shopConfigStore.loadConfig()
 
 app.mount('#app')

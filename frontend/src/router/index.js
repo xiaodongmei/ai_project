@@ -98,7 +98,7 @@ const routes = [
         name: 'Rooms',
         component: () => import('../pages/Rooms.vue'),
         meta: {
-          title: '房间管理',
+          title: '服务空间',
         },
       },
       {

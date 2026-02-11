@@ -13,10 +13,7 @@
           />
           <el-select v-model="filterPosition" placeholder="岗位筛选" clearable class="filter-select">
             <el-option label="全部" value="" />
-            <el-option label="店长" value="店长" />
-            <el-option label="调理师" value="调理师" />
-            <el-option label="收银员" value="收银员" />
-            <el-option label="前台" value="前台" />
+            <el-option v-for="role in positionOptions" :key="role" :label="role" :value="role" />
           </el-select>
         </div>
         <div class="button-group">
@@ -101,15 +98,19 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import EmployeeDialog from '@/components/dialogs/EmployeeDialog.vue'
 import EmployeeDrawer from '@/components/drawers/EmployeeDrawer.vue'
 import * as employeesApi from '@/api/employees'
 import { formatDate } from '@/utils/date'
+import { useShopConfigStore } from '@/store/shopConfig'
 
 const route = useRoute()
+const shopConfig = useShopConfigStore()
+
+const positionOptions = computed(() => shopConfig.staffRoles)
 
 const loading = ref(false)
 const searchText = ref('')

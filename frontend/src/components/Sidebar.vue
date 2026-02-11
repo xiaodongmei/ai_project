@@ -9,7 +9,7 @@
             <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" />
           </svg>
         </div>
-        <span class="logo-text">养生堂</span>
+        <span class="logo-text">{{ shopConfig.shopName }}</span>
       </router-link>
     </div>
 
@@ -43,7 +43,9 @@
 </template>
 
 <script setup>
+import { computed } from 'vue'
 import { useRoute } from 'vue-router'
+import { useShopConfigStore } from '@/store/shopConfig'
 import {
   CreditCard,
   OfficeBuilding,
@@ -56,17 +58,19 @@ import {
 } from '@element-plus/icons-vue'
 
 const route = useRoute()
+const shopConfig = useShopConfigStore()
 
-const menuItems = [
-  { icon: CreditCard, label: '收银', path: '/dashboard' },
-  { icon: OfficeBuilding, label: '房间', path: '/rooms' },
-  { icon: User, label: '顾客', path: '/customers' },
-  { icon: Calendar, label: '预约', path: '/appointments' },
-  { icon: Tickets, label: '订单', path: '/orders' },
-  { icon: Goods, label: '产品', path: '/products' },
-  { icon: Avatar, label: '员工', path: '/employees' },
-  { icon: DataAnalysis, label: '统计', path: '/statistics' },
-]
+// 菜单项 - 使用 shopConfig 中的动态标签
+const menuItems = computed(() => [
+  { icon: CreditCard, label: shopConfig.menuLabels.dashboard, path: '/dashboard' },
+  { icon: OfficeBuilding, label: shopConfig.menuLabels.spaces, path: '/rooms' },
+  { icon: User, label: shopConfig.menuLabels.customers, path: '/customers' },
+  { icon: Calendar, label: shopConfig.menuLabels.appointments, path: '/appointments' },
+  { icon: Tickets, label: shopConfig.menuLabels.orders, path: '/orders' },
+  { icon: Goods, label: shopConfig.menuLabels.products, path: '/products' },
+  { icon: Avatar, label: shopConfig.menuLabels.employees, path: '/employees' },
+  { icon: DataAnalysis, label: shopConfig.menuLabels.statistics, path: '/statistics' },
+])
 
 const isActive = (path) => {
   return route.path === path
@@ -131,6 +135,11 @@ $sidebar-width: 106px;
   font-size: 13px;
   font-weight: 600;
   color: white;
+  max-width: 90px;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 // Navigation

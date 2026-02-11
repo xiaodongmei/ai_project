@@ -5,7 +5,7 @@
       <div class="welcome-section">
         <div class="welcome-text">
           <h1>欢迎回来，管理员</h1>
-          <p>这是今日的店铺运营概况</p>
+          <p>{{ shopConfig.shopName }} · 今日运营概况</p>
         </div>
         <div class="welcome-actions">
           <button class="btn-outline">
@@ -104,7 +104,7 @@
                 </div>
                 <div class="appointment-info">
                   <p class="appointment-name">{{ apt.customer }}</p>
-                  <p class="appointment-detail">{{ apt.service }} · {{ apt.therapist }}</p>
+                  <p class="appointment-detail">{{ apt.service }} · {{ apt.therapist || apt.provider }}</p>
                 </div>
               </div>
             </div>
@@ -145,8 +145,11 @@
 </template>
 
 <script setup>
-import { shallowRef } from 'vue'
+import { shallowRef, computed } from 'vue'
 import { Coin, ShoppingCart, UserFilled, Calendar } from '@element-plus/icons-vue'
+import { useShopConfigStore } from '@/store/shopConfig'
+
+const shopConfig = useShopConfigStore()
 
 const statsData = [
   {
@@ -183,25 +186,66 @@ const statsData = [
   },
 ]
 
-const recentOrders = [
-  { id: 'ORD001', customer: '王芳', service: '足部按摩', amount: 298, status: '已完成', statusType: 'completed', time: '10:30' },
-  { id: 'ORD002', customer: '张三', service: '艾灸理疗', amount: 388, status: '进行中', statusType: 'progress', time: '11:00' },
-  { id: 'ORD003', customer: '李四', service: '推拿按摩', amount: 258, status: '待处理', statusType: 'pending', time: '11:30' },
-  { id: 'ORD004', customer: '刘洋', service: '精油SPA', amount: 598, status: '已完成', statusType: 'completed', time: '14:00' },
-]
+// 从行业模板动态获取服务项目名称
+const serviceNames = computed(() => {
+  const svcs = shopConfig.defaultServices
+  if (svcs && svcs.length > 0) {
+    return svcs.map(s => s.name)
+  }
+  // fallback to categories
+  const cats = shopConfig.serviceCategories
+  return cats.length > 0 ? cats : ['服务项目1', '服务项目2', '服务项目3', '服务项目4']
+})
 
-const upcomingAppointments = [
-  { customer: '陈静', service: '艾灸理疗', time: '14:30', therapist: '李师傅' },
-  { customer: '赵明', service: '推拿按摩', time: '15:00', therapist: '王师傅' },
-  { customer: '钱薇', service: '精油SPA', time: '15:30', therapist: '张师傅' },
-]
+// 从行业模板获取服务价格
+const servicePrices = computed(() => {
+  const svcs = shopConfig.defaultServices
+  if (svcs && svcs.length > 0) {
+    return svcs.map(s => s.price)
+  }
+  return [298, 388, 258, 598]
+})
 
-const topProducts = [
-  { name: '艾灸理疗套餐', sales: 156, revenue: 60528, progress: 85 },
-  { name: '足部按摩', sales: 142, revenue: 42316, progress: 78 },
-  { name: '精油SPA', sales: 98, revenue: 58604, progress: 65 },
-  { name: '推拿按摩', sales: 87, revenue: 22446, progress: 55 },
-]
+// 通用员工名称
+const employeeNames = ['李强', '王月', '赵敏', '张峰', '杨枫']
+
+// 最近订单 - 使用行业模板的实际服务名称和员工名称
+const recentOrders = computed(() => {
+  const names = serviceNames.value
+  const prices = servicePrices.value
+  return [
+    { id: 'ORD001', customer: '王芳', service: `${names[0]}-${employeeNames[0]}`, amount: prices[0] || 298, status: '已完成', statusType: 'completed', time: '10:30' },
+    { id: 'ORD002', customer: '张三', service: `${names[1 % names.length]}-${employeeNames[1]}`, amount: prices[1 % prices.length] || 388, status: '进行中', statusType: 'progress', time: '11:00' },
+    { id: 'ORD003', customer: '李四', service: `${names[2 % names.length]}-${employeeNames[2]}`, amount: prices[2 % prices.length] || 258, status: '待处理', statusType: 'pending', time: '11:30' },
+    { id: 'ORD004', customer: '刘洋', service: `${names[3 % names.length]}-${employeeNames[3]}`, amount: prices[3 % prices.length] || 598, status: '已完成', statusType: 'completed', time: '14:00' },
+  ]
+})
+
+// 今日预约 - 使用实际服务名称和员工名称
+const upcomingAppointments = computed(() => {
+  const names = serviceNames.value
+  const label = shopConfig.providerLabel
+  return [
+    { customer: '陈静', service: names[0], time: '14:30', therapist: employeeNames[0] },
+    { customer: '赵明', service: names[1 % names.length], time: '15:00', therapist: employeeNames[1] },
+    { customer: '钱薇', service: names[2 % names.length], time: '15:30', therapist: employeeNames[2] },
+  ]
+})
+
+// 热门服务 - 使用实际服务名称
+const topProducts = computed(() => {
+  const names = serviceNames.value
+  const salesData = [
+    { sales: 156, revenue: 60528, progress: 85 },
+    { sales: 142, revenue: 42316, progress: 78 },
+    { sales: 98, revenue: 58604, progress: 65 },
+    { sales: 87, revenue: 22446, progress: 55 },
+  ]
+  return salesData.map((item, i) => ({
+    name: names[i % names.length],
+    ...item,
+  }))
+})
 </script>
 
 <style scoped lang="scss">

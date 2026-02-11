@@ -42,6 +42,9 @@
 <script setup>
 import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
+import { useShopConfigStore } from '@/store/shopConfig'
+
+const shopConfig = useShopConfigStore()
 
 const activeTab = ref('today')
 const today = new Date().toLocaleDateString('zh-CN')
@@ -53,11 +56,11 @@ const tabs = [
 ]
 
 const appointments = [
-  { id: 1, time: '14:30', customer: '陈静', is_vip: true, service: '艾灸理疗 · 60min', technician: '李师傅', status: '待到店', statusType: 'pending' },
-  { id: 2, time: '15:00', customer: '赵明', is_vip: false, service: '推拿按摩 · 60min', technician: '王师傅', status: '已到店', statusType: 'arrived' },
-  { id: 3, time: '15:30', customer: '钱薇', is_vip: false, service: '精油SPA · 90min', technician: '张师傅', status: '待到店', statusType: 'pending' },
-  { id: 4, time: '16:00', customer: '王芳', is_vip: true, service: '足部按摩 · 60min', technician: '杨枫', status: '已确认', statusType: 'confirmed' },
-  { id: 5, time: '16:30', customer: '刘洋', is_vip: false, service: '肩颈理疗 · 45min', technician: '惠珠秀', status: '待确认', statusType: 'waiting' },
+  { id: 1, time: '14:30', customer: '陈静', is_vip: true, service: '服务项目A · 60min', technician: '服务师1', status: '待到店', statusType: 'pending' },
+  { id: 2, time: '15:00', customer: '赵明', is_vip: false, service: '服务项目B · 60min', technician: '服务师2', status: '已到店', statusType: 'arrived' },
+  { id: 3, time: '15:30', customer: '钱薇', is_vip: false, service: '服务项目C · 90min', technician: '服务师3', status: '待到店', statusType: 'pending' },
+  { id: 4, time: '16:00', customer: '王芳', is_vip: true, service: '服务项目D · 60min', technician: '服务师4', status: '已确认', statusType: 'confirmed' },
+  { id: 5, time: '16:30', customer: '刘洋', is_vip: false, service: '服务项目E · 45min', technician: '服务师5', status: '待确认', statusType: 'waiting' },
 ]
 </script>
 

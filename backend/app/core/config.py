@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     """应用配置类"""
 
     # 基础配置
-    APP_NAME: str = "Wellness Shop System"
+    APP_NAME: str = "Service Shop Management System"
     APP_VERSION: str = "1.0.0"
     DEBUG: bool = False
     API_PREFIX: str = "/api/v1"
@@ -39,7 +39,7 @@ class Settings(BaseSettings):
     SMS_PROVIDER: str = "aliyun"  # aliyun, tencent, other
     SMS_ACCESS_KEY_ID: str = ""
     SMS_ACCESS_KEY_SECRET: str = ""
-    SMS_SIGN_NAME: str = "养生店系统"
+    SMS_SIGN_NAME: str = "店铺管理系统"
     SMS_TEMPLATE_CODE: str = ""  # 验证码模板ID
 
     # CORS 配置
